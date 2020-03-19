@@ -1,0 +1,9 @@
+body {
+  background: #eee; 
+  font-family: "Nunito SemiBold"
+}
+
+.App h1 {
+  color: #444; 
+  text-align: center; 
+}
