@@ -23,7 +23,7 @@ const NflTeamType = new GraphQLObjectType({
     logo: { type: GraphQLString },
     location: { type: GraphQLString },
     players: {
-      type: new GraphQLList(BookType),
+      type: new GraphQLList(NflPlayerType),
       resolve(parent, args) {
         console.log(parent, args);
         // return NflPlayer.find({ currentTeamId: parent.id });

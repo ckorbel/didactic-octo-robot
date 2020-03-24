@@ -11,9 +11,37 @@ const ADD_NFL_TEAM = gql`
   }
 `;
 
+const ADD_TEAM = gql`
+  mutation($name: String!, $logo: String!, $location: String!) {
+    addTeam(name: $name, logo: $logo, location: $location) {
+      name
+      logo
+      location
+    }
+  }
+`;
+
 const ADD_NFL_PLAYER = gql`
   mutation($name: String!, $position: String!, $currentTeamId: String!) {
     addNflPlayer(
+      name: $name
+      position: $position
+      currentTeamId: $currentTeamId
+    ) {
+      name
+      position
+      currentTeam {
+        name
+        logo
+        location
+      }
+    }
+  }
+`;
+
+const ADD_MLB_PLAYER = gql`
+  mutation($name: String!, $position: String!, $currentTeamId: String!) {
+    addMlbPlayer(
       name: $name
       position: $position
       currentTeamId: $currentTeamId

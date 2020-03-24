@@ -1,8 +1,7 @@
 const Sequelize = require("sequelize");
 const db = require("../../config/db");
-const NflTeam = require("./Nflteam");
 
-const NflPlayer = db.define("nfl_players", {
+const MlbPlayer = db.define("mlb_players", {
   name: {
     type: Sequelize.STRING,
     unique: true,
@@ -14,9 +13,9 @@ const NflPlayer = db.define("nfl_players", {
   },
   currentTeamId: {
     type: Sequelize.INTEGER,
-    references: "nfl_teams",
+    references: "teams",
     referencesKey: "id"
   }
 });
 
-module.exports = NflPlayer;
+module.exports = MlbPlayer;

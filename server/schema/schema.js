@@ -1,6 +1,8 @@
 const graphql = require("graphql");
 const NflTeam = require("../models/postgres/Nflteam");
 const NflPlayer = require("../models/postgres/Nflplayer");
+const Team = require("../models/postgres/Team");
+const MlbPlayer = require("../models/postgres/MlbPlayer");
 
 const {
   GraphQLObjectType,
@@ -22,8 +24,11 @@ const NflTeamType = new GraphQLObjectType({
     players: {
       type: new GraphQLList(NflPlayerType),
       resolve(parent, args) {
-        console.log(parent, args);
-        return NflPlayer.find({ currentTeamId: parent.id });
+        return NflPlayer.findAll({
+          where: {
+            currentTeamId: parent.id
+          }
+        });
       }
     }
   })
@@ -39,6 +44,38 @@ const NflPlayerType = new GraphQLObjectType({
       type: NflTeamType,
       resolve(parent, args) {
         return NflTeam.findByPk(parent.currentTeamId);
+      }
+    }
+  })
+});
+
+const TeamType = new GraphQLObjectType({
+  name: "Team",
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    logo: { type: GraphQLString },
+    location: { type: GraphQLString },
+    players: {
+      type: new GraphQLList(MlbPlayerType),
+      resolve(parent, args) {
+        console.log(parent, args);
+        return MlbPlayer.find({ currentTeamId: parent.id });
+      }
+    }
+  })
+});
+
+const MlbPlayerType = new GraphQLObjectType({
+  name: "MlbPlayer",
+  fields: () => ({
+    id: { type: GraphQLID },
+    name: { type: GraphQLString },
+    position: { type: GraphQLString },
+    currentTeam: {
+      type: TeamType,
+      resolve(parent, args) {
+        return Team.findByPk(parent.currentTeamId);
       }
     }
   })
@@ -60,6 +97,33 @@ const RootQuery = new GraphQLObjectType({
       resolve(parent, args) {
         console.log(parent, args);
         return NflTeam.findAll();
+      }
+    },
+    team: {
+      type: TeamType,
+      args: { id: { type: GraphQLID } },
+      resolve(parents, args) {
+        return Team.findByPk(args.id);
+      }
+    },
+    teams: {
+      type: new GraphQLList(TeamType),
+      resolve(parent, args) {
+        console.log(parent, args);
+        return Team.findAll();
+      }
+    },
+    mlbplayers: {
+      type: MlbPlayerType,
+      resolve(parent, args) {
+        return MlbPlayer.findAll();
+      }
+    },
+    mlbplayer: {
+      type: MlbPlayerType,
+      args: { id: { type: GraphQLID } },
+      resolve(parent, args) {
+        return MlbPlayer.findByPk(args.id);
       }
     },
     nflplayer: {
@@ -99,6 +163,43 @@ const Mutation = new GraphQLObjectType({
         });
         console.log(nflTeam);
         return nflTeam;
+      }
+    },
+    addTeam: {
+      type: TeamType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        logo: { type: GraphQLString },
+        location: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        const { name, location, logo } = args;
+        const team = Team.create({
+          name,
+          location,
+          logo
+        });
+        console.log(team);
+        return team;
+      }
+    },
+    addMlbPlayer: {
+      type: MlbPlayerType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        position: { type: new GraphQLNonNull(GraphQLString) },
+        currentTeamId: { type: new GraphQLNonNull(GraphQLString) }
+      },
+      resolve(parent, args) {
+        console.log(parent, args);
+        const { name, position, currentTeamId } = args;
+        const mlbPlayer = MlbPlayer.create({
+          name,
+          position,
+          currentTeamId
+        });
+        console.log(mlbPlayer);
+        return mlbPlayer;
       }
     },
     addNflPlayer: {
